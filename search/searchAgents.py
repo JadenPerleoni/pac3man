@@ -401,15 +401,40 @@ def cornersHeuristic(state, problem):
     position, visitedCorners = state
 
     # Set of cordinates of the unvisited corners
-    unvisitedCorners = {}
-    i = 0
-    for corner in corners:
-        if not visitedCorners[i]:
-            unvisitedCorners[i] = corner
-        i += 1
 
+    unvisitedCorners = [corners[i] for i in range(4) if not visitedCorners[i]]
+
+    # unvisitedCorners = []
+
+    # for corner in corners:
+    #     for i in range (4):
+    #         if corner not in visitedCorners:
+    #             print(i)
+    #             unvisitedCorners[i] = corner
+                
+
+
+    # If there aren't any unvisited corners, return a heuristic of 0
+    if not unvisitedCorners:
+        return 0
+
+    # This heuristic will return the Manhattan distance from the current
+    # position to the furthest unvisited corner
+    maxDistance = 0
+
+    for corner in unvisitedCorners:
+        # Using manhattan distance, set the goal state as the corner to 
+        # measure the distance from position to corner
+        distance = util.manhattanDistance(position, corner)
+
+        # Determine the furthest corner by distance
+        if distance > maxDistance:
+            maxDistance = distance
     
-
+    # The heuristic value is the maximum Manhattan distance from the current
+    # position to the furthest unvisted corner.
+    return maxDistance
+    
 
     return 0 # Default to trivial solution
 
