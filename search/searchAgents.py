@@ -530,7 +530,57 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    # Same logic as corners problem, but instead of setting goal as unvisited corner
+    # when using util.manhattanDistance, the goal is set as a food dot.
+
+    # The heuristic value will also be similar to corners heuristic:
+    # Find the maximum distance to any food dot AKA finding the furthest food dot
+    # ALSO find the maximum distance between any two food dots. The idea is 
+    # to not expand a node that is super remote. If a food dot has a short manhattan distance 
+    # to another food dot BUT that food dot is remote (far away from other food dots), this
+    # value accounts for that. If the value found between the two furthest food dots exceeds
+    # the maximum distance to another food dot, we return that value as the heuristic value.
+
+
+
+    # List representing positions of each food dot
+    foodList = foodGrid.asList()
+
+    # If no food dots remian, return heuristic value of 0
+    if not foodList:
+        return 0
+
+    # Find maximum distance between current position and next food dot.
+    maxDistance = 0
+    for food in foodList:
+        distance = util.manhattanDistance(position,food)
+        if distance > maxDistance:
+            maxDistance = distance
+    
+
+    # Find maximum distance between any two given food dots(nodes)
+    maxDistanceBetweenFoodDots = 0
+    
+    # Loop through each food dot, comparing to every other food dot in foodList
+    for i in range(len(foodList)):
+        # Compare to every other dot in the grid
+        for j in range(i + 1, len(foodList)):
+            # Use x1 = foodList[i] and x2 = foodList[j] as arguments in 
+            # manhattanDistance to find the max distance between two food dots.
+            distance = util.manhattanDistance(foodList[i],foodList[j])
+            if distance > maxDistanceBetweenFoodDots:
+                maxDistanceBetweenFoodDots = distance
+
+  
+    # if maxDistanceBetweenFoodDots > maxDistance:
+    #     print("Between food dots won")
+
+    # else:
+    #     print("Distance won")
+
+    # Return the greater heuristic value between maxDistance between current position and 
+    # next food dot, and max distance between any two food dots.
+    return max(maxDistance,maxDistanceBetweenFoodDots)
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
