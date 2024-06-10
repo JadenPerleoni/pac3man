@@ -87,16 +87,99 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
+
+
+    def dfs(visited, frontier):
+        
+        if frontier.isEmpty():
+            return []
+        
+        state, path = frontier.pop()
+        # If goal state is found return the path
+        if problem.isGoalState(state):
+            return path
+
+        # Mark state as visited
+        if state not in visited:
+            visited.add(state)
+
+        # Get successor states
+        successors = problem.getSuccessors(state)
+        for successor, action, _ in successors:
+            if successor not in visited:
+               frontier.push((successor, path + [action]))
+               result = dfs(visited,frontier)
+               if result is not None:
+                   return result
+    
+
+    visited = set() # Represents the stack of visited nodes
+    frontier = util.Stack() # Represents frontier
+    start = problem.getStartState() # Starting position
+    frontier.push((start,[]))
+    return dfs(visited,frontier)
+
+        
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+
+    def bfs(frontier, visited, start):
+        
+        visited.add(start)
+        frontier.push((start,[]))
+        while not frontier.isEmpty():
+            state,path = frontier.pop()
+            if problem.isGoalState(state):
+                return path
+            if state not in visited:
+                visited.add(state)
+            successors = problem.getSuccessors(state)
+            for successor,action, _ in successors:
+                if successor not in visited:
+                    visited.add(successor)
+                    frontier.push((successor,path + [action]))
+
+    visited = set()
+    frontier = util.Queue()
+    start = problem.getStartState()
+    return bfs(frontier,visited,start)
+    
+
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+
+    def ucss(frontier,costCum,start):
+
+        # Initalize the starting root, path, and cost.
+        frontier.push((start,[],0),0)
+        #Initialize starting cost to 0
+        costCum[start] = 0 
+
+        while not frontier.isEmpty():
+
+            state,path, cost = frontier.pop()
+            if problem.isGoalState(state):
+                return path
+            
+
+            successors = problem.getSuccessors(state)
+            for successor,action, stepCost in successors:
+                newCost = stepCost + cost
+                if successor not in costCum or newCost < costCum[successor]:
+                    costCum[successor] = newCost
+                    frontier.push((successor,path + [action],newCost),newCost)
+
+
+    costCum = {}
+    frontier = util.PriorityQueue()
+    start = problem.getStartState()
+    return ucss(frontier,costCum,start)
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
@@ -109,6 +192,32 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    frontier = util.PriorityQueue()
+
+    costCum = {}
+    start = problem.getStartState()    
+
+    frontier.push((start,[],0),0)
+    costCum[start] = 0
+
+    while not frontier.isEmpty():
+        state, path, cost = frontier.pop()
+        if problem.isGoalState(state):
+            return path
+        
+        successors = problem.getSuccessors(state)
+        for successor, action, stepCost in successors:
+            # Check if successor is goal state, return path
+
+
+            newCost = stepCost + cost
+            if successor not in costCum or newCost < costCum[successor]:
+                costCum[successor] = newCost
+                priority = newCost + heuristic(successor,problem)
+                frontier.update((successor,path + [action],newCost),priority)
+
+
+
     util.raiseNotDefined()
 
 

@@ -289,12 +289,20 @@ class CornersProblem(search.SearchProblem):
         # in initializing the problem
         "*** YOUR CODE HERE ***"
 
+
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
         "*** YOUR CODE HERE ***"
+
+        # Returns the starting positions cordinates, as well as a list of booleans
+        # that represents whether or not the four corners have been visited. They are 
+        # initially false.
+
+        return (self.startingPosition,(False,False,False,False))
+
         util.raiseNotDefined()
 
     def isGoalState(self, state):
@@ -302,6 +310,10 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
+
+        # Returns true if all four corners have been visited.
+        # (If all boolean values in the state are true)
+        return all(state[1])
         util.raiseNotDefined()
 
     def getSuccessors(self, state):
@@ -325,6 +337,31 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            # Get current x and y position and check if each cardinal direction results
+            # in a legal move
+            x,y = state[0]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+
+            # True if direction will hit wall, false if it wont'.
+            hitsWall = self.walls[nextx][nexty]
+
+            if not hitsWall:
+                # Represents the next position's cordinates
+                nextPosition = (nextx,nexty)
+                # Represents a boolean list of the visited corners, initially false
+                visitedCorners = list(state[1])
+                # Check if the next position is a corner
+                if nextPosition in self.corners:
+                    # Find the specific corner's index and mark it in visitedCorners
+                    
+                    cornerIndex = self.corners.index(nextPosition)
+                    visitedCorners[cornerIndex] = True
+                # Add state to succesor. Includes the cordinatess, information about corners, 
+                # the action, and the cost(1).
+                successors.append(((nextPosition, tuple(visitedCorners)), action, 1))
+                #successors.append((nextPosition,tuple(visitedCorners), action, 1))
+                
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -360,6 +397,20 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
+    # Get current position and list of visited corners
+    position, visitedCorners = state
+
+    # Set of cordinates of the unvisited corners
+    unvisitedCorners = {}
+    i = 0
+    for corner in corners:
+        if not visitedCorners[i]:
+            unvisitedCorners[i] = corner
+        i += 1
+
+    
+
+
     return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
