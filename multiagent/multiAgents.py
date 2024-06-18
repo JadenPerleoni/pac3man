@@ -38,7 +38,7 @@ class ReflexAgent(Agent):
         Just like in the previous project, getAction takes a GameState and returns
         some Directions.X for some X in the set {North, South, West, East, Stop}
         """
-        # Collect legal moves and successor states testeewq
+        # Collect legal moves and successor states
         legalMoves = gameState.getLegalActions()
 
         # Choose one of the best actions
@@ -74,7 +74,55 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+
+        # Represents the grid of food dots as a list, each tuple is a cordinate (x,y)
+        foodList = newFood.asList()        
+
+        if foodList:
+            # If food list is not empty, calculate the MINIMUM distance 
+            # to reach the nearest food dot using Manhattan Distance
+            minFoodDistance = min([manhattanDistance(newPos,food) for food in foodList])
+        else:
+            # If foodlist is empty, there are no food dots remaining and
+            # we set minFoodDistance to 0
+            minFoodDistance = 0
+        
+        # We also want to account for ghosts. Calculate the manhattan
+        # distance to the closest ghost from current position.
+        
+        # Get current positions of ghosts
+        ghostPositions = successorGameState.getGhostPositions()
+        minGhostDistance = min([manhattanDistance(newPos,ghostPos) for ghostPos in ghostPositions])
+
+        # Represents the score at the current state
+        score = successorGameState.getScore()
+
+        # If the ghosts are active, we want to AVOID them
+
+        # Determine the time left in seconds of scared ghosts, if the scared time
+        # is greater than 0, we add it to scaredGhosts
+        scaredGhosts = [ghost.scaredTimer for ghost in newGhostStates if ghost.scaredTimer > 0]
+
+        # Determine the number of active ghosts.
+        # If the ghost has a scared time of 0, count it as active
+        activeGhosts = [ghost.scaredTimer for ghost in newGhostStates if ghost.scaredTimer == 0]
+
+
+        # If there are active ghosts, subtract the distance to the closest ghost
+        # from the score.
+        if activeGhosts:
+            score += min(minGhostDistance,10) *-1
+        # If the ghost is scared, add the path to the score
+        if scaredGhosts:
+            score += min(minGhostDistance,10)
+
+        score += 1.0/ (minFoodDistance + 1)
+            
+
+        # 
+        return score
+
+
 
 def scoreEvaluationFunction(currentGameState):
     """
