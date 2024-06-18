@@ -38,7 +38,7 @@ class ReflexAgent(Agent):
         Just like in the previous project, getAction takes a GameState and returns
         some Directions.X for some X in the set {North, South, West, East, Stop}
         """
-        # Collect legal moves and successor states
+        # Collect legal moves and successor states testeewq
         legalMoves = gameState.getLegalActions()
 
         # Choose one of the best actions
