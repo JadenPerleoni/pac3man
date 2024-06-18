@@ -91,10 +91,14 @@ class ReflexAgent(Agent):
         # distance to the closest ghost from current position.
         
         # Get manhattan distance from each ghost's position at current position
-        ghostPositions = [manhattanDistance(newPos,ghost.getPosition()) for ghost in newGhostStates]
-        # Find the distance to the nearest ghost
-        minGhostDistance = min(ghostPositions) if ghostPositions else float('inf')
+        # ghostPositions = [manhattanDistance(newPos,ghost.getPosition()) for ghost in newGhostStates]
+        # # Find the distance to the nearest ghost
+        # minGhostDistance = min(ghostPositions) if ghostPositions else float('inf')
 
+        ghostPositions = successorGameState.getGhostPositions()
+        minGhostDistance = min([manhattanDistance(newPos,ghostPos) for ghostPos in ghostPositions])
+
+        
         # Represents the score at the current state
 
         # If the ghosts are active, we want to AVOID them
