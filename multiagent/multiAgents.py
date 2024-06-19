@@ -91,15 +91,12 @@ class ReflexAgent(Agent):
         # distance to the closest ghost from current position.
         
         # Get manhattan distance from each ghost's position at current position
-        # ghostPositions = [manhattanDistance(newPos,ghost.getPosition()) for ghost in newGhostStates]
-        # # Find the distance to the nearest ghost
-        # minGhostDistance = min(ghostPositions) if ghostPositions else float('inf')
-
         ghostPositions = successorGameState.getGhostPositions()
+
+        # Find the distance to the nearest ghost
         minGhostDistance = min([manhattanDistance(newPos,ghostPos) for ghostPos in ghostPositions])
 
         
-        # Represents the score at the current state
 
         # If the ghosts are active, we want to AVOID them
 
@@ -111,20 +108,30 @@ class ReflexAgent(Agent):
         # If the ghost has a scared time of 0, count it as active
         activeGhosts = [ghost.scaredTimer for ghost in newGhostStates if ghost.scaredTimer == 0]
 
+
+        # Represents the score at the current state
         score = successorGameState.getScore()
 
         # If there are active ghosts, subtract the distance to the closest ghost
         # from the score.
+
+        # A minimum function is used in order to set a minimum distance from a ghost
+        # to avoid. If the closest ghost is over 7 blocks away, we don't need to 
+        # worry about pacman running into it. 7 was the value that avoided the ghosts 
+        # best for me when testing.
         if activeGhosts:
             score -= (min(minGhostDistance, 7) * -1)
-            print(minGhostDistance)
         # If the ghost is scared, add the path to the score
         if scaredGhosts:
-            score += min(minGhostDistance,5)
+            score += min(minGhostDistance,4)
 
+
+        # As the minimum distance to the nearest food dot gets lower,
+        # the value added to the score increases. This incentivizes
+        # pacman to take a path closest to food dots.
         score += 1.0 / (minFoodDistance + 1)
 
-        # 
+        # Return the total score of the current path
         return score
 
 
@@ -182,7 +189,62 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def minimax(agentIndex,depth, gameState):
+            # Check if depth is at its max level or if game is over
+            if depth == self.depth or gameState.isWin() or gameState.isLose():
+                return self.evaluationFunction(gameState)
+          
+            # If we want to calculate pacman's best move, we use MAX
+            # (pacman is our max agent)
+            if agentIndex == 0:
+                return maxValue(agentIndex,depth,gameState)
+            # Else calculate the adverserial (min)
+            else:
+                return minValue(agentIndex,depth,gameState)
+            
+            # Function to find the maximum value for each possbile move
+            # in a given state.
+        def maxValue(agentIndex, depth, gameState):
+            maxEval = float('-inf')
+            legalMoves = gameState.getLegalActions(agentIndex)
+
+            for action in legalMoves:
+                successor = gameState.generateSuccessor(agentIndex,action)
+                maxEval = max(maxEval,minimax(1,depth,successor))
+            return maxEval
+            
+
+        def minValue(agentIndex, depth, gameState):
+            minEval = float('inf')
+            legalMoves = gameState.getLegalActions(agentIndex)
+            # Set the index of the next agent
+            nextAgentIndex = agentIndex + 1
+
+            if nextAgentIndex == gameState.getNumAgents():
+                nextAgentIndex = 0
+                depth += 1
+
+
+            for action in legalMoves:
+                successor = gameState.generateSuccessor(agentIndex,action)
+                minEval = min(minEval,minimax(nextAgentIndex,depth,successor))
+            return minEval
+        
+        legalMoves = gameState.getLegalActions(0)
+        bestMove = None
+        bestVal = float('-inf')
+
+        for action in legalMoves:
+            successor = gameState.generateSuccessor(0,action)
+            value = minimax(1,0,successor)
+            if value > bestVal:
+                bestVal = value
+                bestMove = action
+        return bestMove
+                
+
+
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
