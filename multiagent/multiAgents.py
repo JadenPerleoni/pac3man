@@ -213,14 +213,18 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 maxEval = max(maxEval,minimax(1,depth,successor))
             return maxEval
             
-
+          # Function to find the miniumum value for each possbile move
+          # in a given state.
         def minValue(agentIndex, depth, gameState):
             minEval = float('inf')
             legalMoves = gameState.getLegalActions(agentIndex)
             # Set the index of the next agent
             nextAgentIndex = agentIndex + 1
 
+            # If all agents have completed their turn, set turn back to pacman's
+            # and increase depth
             if nextAgentIndex == gameState.getNumAgents():
+                print(nextAgentIndex)
                 nextAgentIndex = 0
                 depth += 1
 
@@ -230,8 +234,11 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 minEval = min(minEval,minimax(nextAgentIndex,depth,successor))
             return minEval
         
+
         legalMoves = gameState.getLegalActions(0)
+        # Represents the direction of best move
         bestMove = None
+        # Represents the value of best move
         bestVal = float('-inf')
 
         for action in legalMoves:
@@ -240,9 +247,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
             if value > bestVal:
                 bestVal = value
                 bestMove = action
-        return bestMove
-                
 
+        # Return best val
+        return bestMove
 
 
 
